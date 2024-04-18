@@ -1,6 +1,7 @@
+from audioop import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 
 User = get_user_model()
 
@@ -63,20 +64,14 @@ def teacher_detail(request, id):
         'teacher': teacher
     }
     return render(request, 'app_main/teacher.html', context)
-
-
 def teacher_update(request, id):
     teacher = get_object_or_404(User, id=id)
-
     if request.method == 'POST':
         teacher.first_name = request.POST.first_name
-        ...
-
-    context = {
-        'teacher': teacher
-    }
-    return render(request, 'app_main/teacher_form.html', context)
-
+        teacher.last_name = request.POST.get('last_name')
+        teacher.save()
+        return HttpResponseRedirect(reverse('teacher_detail', args=(teacher.id,)))
+    return render(request, 'teacher_update.html', {'teacher': teacher})
 
 def teacher_delete(request, id):
     user = get_object_or_404(User, id=id)
